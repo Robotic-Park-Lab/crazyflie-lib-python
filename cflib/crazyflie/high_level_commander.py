@@ -46,6 +46,17 @@ class HighLevelCommander():
     COMMAND_DEFINE_TRAJECTORY = 6
     COMMAND_TAKEOFF_2 = 7
     COMMAND_LAND_2 = 8
+    COMMAND_UPDATE_NEIGHBOUR = 11
+    COMMAND_NEW_NEIGHBOUR = 12
+    COMMAND_TARGET_POSE = 13
+    COMMAND_ENABLE_FORMATION = 14
+    COMMAND_REMOVE_NEIGHBOUR = 15
+    COMMAND_UPDATE_DISTANCE = 16
+    COMMAND_UPDATE_ATTITUDE = 17
+    COMMAND_UPDATE_ATTITUDE_RATE = 18
+    COMMAND_ENABLE_RELAY = 19
+    COMMAND_UPDATE_RELAY_PARAMS = 20
+    COMMAND_UPDATE_CONTROLLER_PARAMS = 21
 
     ALL_GROUPS = 0
 
@@ -69,6 +80,149 @@ class HighLevelCommander():
         self._send_packet(struct.pack('<BB',
                                       self.COMMAND_SET_GROUP_MASK,
                                       group_mask))
+
+    def update_neighbour(self, id, x, y, z, group_mask=ALL_GROUPS):
+        """
+        update neighbour position 
+
+        :param id: name (float)
+        :param x: X (m)
+        :param y: Y (m)
+        :param z: Z (m)
+        """
+        self._send_packet(struct.pack('<BBffff',
+                                      self.COMMAND_UPDATE_NEIGHBOUR,
+                                      group_mask,
+                                      id,
+                                      x, y, z))
+    
+    def go_to_target_pose(self, x, y, z, group_mask=ALL_GROUPS):
+        """
+        target position cmd 
+
+        :param x: X (m)
+        :param y: Y (m)
+        :param z: Z (m)
+        """
+        self._send_packet(struct.pack('<BBfff',
+                                      self.COMMAND_TARGET_POSE,
+                                      group_mask,
+                                      x, y, z))
+        
+    def enable_formation(self, group_mask=ALL_GROUPS):
+        """
+        Enable formation
+
+        :param group_mask: Mask for which CFs this should apply to
+        :return:
+        """
+        self._send_packet(struct.pack('<BB',
+                                      self.COMMAND_ENABLE_FORMATION,
+                                      group_mask))
+    
+    def new_neighbour(self, id, d, k, group_mask=ALL_GROUPS):
+        """
+        new neighbour 
+
+        :param id: name (float)
+        :param d: D (m)
+        """
+        self._send_packet(struct.pack('<BBfff',
+                                      self.COMMAND_NEW_NEIGHBOUR,
+                                      group_mask,
+                                      id, 
+                                      d, k))
+
+    def remove_neighbour(self, id, group_mask=ALL_GROUPS):
+        """
+        remove neighbour 
+
+        :param id: name (float)
+        """
+        self._send_packet(struct.pack('<BBf',
+                                      self.COMMAND_REMOVE_NEIGHBOUR,
+                                      group_mask,
+                                      id))
+
+    def update_distance(self, id, d, group_mask=ALL_GROUPS):
+        """
+        remove neighbour 
+
+        :param id: name (float)
+        """
+        self._send_packet(struct.pack('<BBff',
+                                      self.COMMAND_UPDATE_DISTANCE,
+                                      group_mask,
+                                      id, d))
+        
+    def update_attitud_cmd(self, roll, pitch, yaw, thrust, group_mask=ALL_GROUPS):
+        """
+        update Attitude command 
+
+        :param roll: (deg)
+        :param pitch: (deg)
+        :param yaw: (deg)
+        :param thrust: 
+        """
+        self._send_packet(struct.pack('<BBffff',
+                                      self.COMMAND_UPDATE_ATTITUDE,
+                                      group_mask,
+                                      roll, pitch, yaw, thrust))
+    
+    def update_attituderate_cmd(self, roll_rate, pitch_rate, yaw_rate, thrust, group_mask=ALL_GROUPS):
+        """
+        update Attitude Rate command 
+
+        :param roll_rate: (deg/s)
+        :param pitch_rate: (deg/s)
+        :param yaw_rate: (deg/s)
+        :param thrust: 
+        """
+        self._send_packet(struct.pack('<BBffff',
+                                      self.COMMAND_UPDATE_ATTITUDE_RATE,
+                                      group_mask,
+                                      roll_rate, pitch_rate, yaw_rate, thrust))
+
+    def enable_relay(self, group_mask=ALL_GROUPS):
+        """
+        Enable Relay Controller
+
+        :param group_mask: Mask for which CFs this should apply to
+        :return:
+        """
+        self._send_packet(struct.pack('<BB',
+                                      self.COMMAND_ENABLE_RELAY,
+                                      group_mask))
+        
+    def update_relay_params(self, level, angle, cmd, threshold, group_mask=ALL_GROUPS):
+        """
+        update Relay params
+
+        :param level: 0 = Rate; 1 = Attitude
+        :param angle: 0 = Roll; 1 = Pitch
+        :param cmd: 
+        :param threshold: 
+        """
+        self._send_packet(struct.pack('<BBBBff',
+                                      self.COMMAND_UPDATE_RELAY_PARAMS,
+                                      group_mask,
+                                      level, angle, cmd, threshold))
+
+    def update_controller_params(self, level, angle, kp, ki, kd, co, group_mask=ALL_GROUPS):
+        """
+        update Relay params
+
+        :param level: 0 = Rate; 1 = Attitude
+        :param angle: 0 = Roll; 1 = Pitch
+        :param kp: 
+        :param ki: 
+        :param kd: 
+        :param co: 
+        """
+        self._send_packet(struct.pack('<BBBBffff',
+                                      self.COMMAND_UPDATE_CONTROLLER_PARAMS,
+                                      group_mask,
+                                      level, angle, kp, ki, kd, co))
 
     def takeoff(self, absolute_height_m, duration_s, group_mask=ALL_GROUPS,
                 yaw=0.0):
